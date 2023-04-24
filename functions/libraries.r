@@ -9,6 +9,7 @@ library(purrr)
 library(tokenizers)
 library(tm)
 library(data.table)
+library(lubridate)
 library(reticulate)
 use_python("C:/Users/Jonathan Korn/Anaconda3/python.exe")
 }
