@@ -11,6 +11,7 @@ import numpy as np
 import os
 import warnings
 import random
+from os import walk
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 
@@ -19,11 +20,14 @@ warnings.filterwarnings("ignore")
 os.chdir('C:/Users/Jonathan Korn/Desktop/deep.txt.gen.eoe.[v.1]')
 
 # Load the data
-data = pd.read_csv('processed/data.csv', sep=',')
+mypath = './processed/'
+filenames = next(walk(mypath), (None, None, []))[2]
+rand_num = random.randint(0,len(filenames))
+data = pd.read_csv('processed/'+str(filenames[-1]), sep=',')
 text = data['text'].str.cat(sep=' ')
 
 # Open the file in read mode
-with open('data/words.txt', 'r') as file:
+with open('words/words.txt', 'r') as file:
     # Read the contents of the file
     words = file.read()
     
@@ -47,7 +51,7 @@ for i in range(1, len(sequences)):
     X.append(sequences[i-1])
     y.append(sequences[i])
 X = np.array(X)
-idx = np.random.choice(len(X), size=1000, replace=False)
+idx = np.random.choice(len(X), size=len([X]), replace=False)
 X = X[idx]
 y = np.array(y)
 y = y[idx]

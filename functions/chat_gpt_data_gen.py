@@ -49,7 +49,7 @@ for i in words:
   current_time = current_time.replace(":","")
   today = date.today()
   time = str(today)+str(current_time)
-  text_file = open("./data/data.txt", "w")
+  text_file = open("./data/data"+time+".txt", "w")
  
   #write string to file
   text_file.write(response)
