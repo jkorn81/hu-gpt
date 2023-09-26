@@ -1,11 +1,8 @@
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.layers import Embedding
-from tensorflow.keras.layers import LSTM
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.models import save_model
-from tensorflow.keras.models import load_model
+from tensorflow.keras.layers import Embedding, LSTM, Dense, Dropout, LayerNormalization
+from tensorflow.keras.models import save_model, load_model
 import pandas as pd
 import numpy as np
 import os
@@ -13,7 +10,8 @@ import warnings
 import random
 from os import walk
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-
+from transformers import TFGPT2Model
+from transformers import TFAutoModelForCausalLM
 
 warnings.filterwarnings("ignore")
 
@@ -24,7 +22,16 @@ mypath = './processed/'
 filenames = next(walk(mypath), (None, None, []))[2]
 rand_num = random.randint(0,len(filenames))
 data = pd.read_csv('processed/'+str(filenames[-1]), sep=',')
-text = data['text'].str.cat(sep=' ')
+# Initialize an empty string to store the combined text
+text = ""
+
+# Iterate over each file
+for filename in filenames:
+    # Read the file using pandas
+    data = pd.read_csv(os.path.join(mypath, filename), sep=',')
+    
+    # Concatenate the 'text' column of the current file to the 'text' variable
+    text += data['text'].str.cat(sep=' ')
 
 # Open the file in read mode
 with open('words/words.txt', 'r') as file:
@@ -58,62 +65,20 @@ y = y[idx]
 y = tf.keras.utils.to_categorical(y, num_classes=vocab_size)
 
 # Load the Model 
-model = load_model('states/gpt_model.h5')
+#model = load_model('states/gpt_model.h5')
+model = load_model('states/gpt_model2.h5')
 model.compile(loss="categorical_crossentropy", optimizer="adam")
 
 # Train the model
 model.fit(X, y, batch_size=128, epochs=10)
 
 # Save the model
-model.save('states/gpt_model.h5')
+#model.save('states/gpt_model.h5')
+model.save('states/gpt_model2.h5')
 
-# Generate some text
-import openai
-# Set up the model and prompt
-model_engine = "text-davinci-003"
-# Set up the OpenAI API client
-openai.api_key = "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"
-
-from urllib.request import Request, urlopen
+seed_text = "Explain human logic in two sentences? "
 import random
-import os
-import warnings
-
-warnings.filterwarnings("ignore")
-
-os.chdir('C:/Users/Jonathan Korn/Desktop/deep.txt.gen.eoe.[v.1]')
-
-prompt = "Provide me a random word."
-# Generate a response
-completion = openai.Completion.create(
-  engine=model_engine,
-  prompt=prompt,
-  max_tokens=2000,
-  n=1,
-  stop=None,
-  temperature=0.5,
-)
-response = completion.choices[0].text
-rand_words = response[:0].split("\n")
-
-
-words = range(0, len(rand_words))
-for i in words:
-  random.shuffle(rand_words)
-  prompt = "Provide me a 400 word paragraph or statement or quote or phrase about "+str(rand_words[i])+" with at least 5 sentences or more."
-  # Generate a response
-  completion = openai.Completion.create(
-    engine=model_engine,
-    prompt=prompt,
-    max_tokens=2000,
-    n=1,
-    stop=None,
-    temperature=0.5,
-    )
-  response = completion.choices[0].text
-seed_text = str(response)
-import random
-num_words = random.randint(1, 1000)  # number of words to generate after seed_text
+num_words = random.randint(1, 1000)
 for i in range(num_words):
     sequence = tokenizer.texts_to_sequences([seed_text])[0]
     sequence = np.array(sequence)
