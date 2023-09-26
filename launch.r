@@ -10,7 +10,7 @@ time = Sys.time()
 hour = hour(time)
 while(TRUE){
   if(hour <= 6){
-    source_python("functions/chat_gpt_data_gen.py") #Need to loop to collect daily training samples. x amount of txt files.
+    #source_python("functions/chat_gpt_data_gen.py") #Need to loop to collect daily training samples. x amount of txt files.
     print("data collection processing running...")
   } else {
     setwd("C:/Users/Jonathan Korn/Desktop/deep.txt.gen.eoe.[v.1]")
@@ -37,7 +37,8 @@ while(TRUE){
         data = data.frame("text" = as.character(data.text))
         write.csv(data, paste0("processed/data", i,".csv"))
       }
-      source_python("models/initial_gpt.py")
+      #source_python("models/initial_gpt.py")
+      source_python("models/initial_gpt2.py")
     } else {
       while (TRUE) {
         # - [-] - preprocess the data ----
@@ -60,6 +61,7 @@ while(TRUE){
           write.csv(data, paste0("processed/data", i,".csv"))
         }
         source_python("models/retrain_gpt.py")
+        source_python("functions/generate_output.py")
         source_python("functions/gpt-confirmation.py") # This needs to add similarity as well to the one sample daily test text. Both readability and similarity need to be met to start sourcing the next samples and retraining with new samples.
         if (readLines("outputs/rank.txt") == "Yes") {
           break
